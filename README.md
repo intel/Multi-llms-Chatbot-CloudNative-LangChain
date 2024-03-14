@@ -96,7 +96,15 @@ For this example we will be using 3 different types of models. Follow "How to do
 model_path="/efs_mounted/Models/llama-2-7b-chat-hf"    # Modify it accordly to your file server mount path defined on the deployment.yaml file.
 ```
 - **OPTIMIZED : LlaMa2-7b-chat-hf Model** : Follow the Apendix section "How was the optimization done?" to perform the optimization. 
-- **OpenAI API-GPT3.5/4** : API....
+- **OpenAI API-GPT3.5/4** : This particular model is intended for use with the LangChain (ChatOpenAi) API. To utilize it, ensure your OpenAI_key is configured within the container for the External model. In this scenario, the key is linked to the EFS server where it is stored.
+```python
+#Open AI key stored on a File server
+f = open('/efs_mounted/Models/openai_key.txt')
+# Read the contents of the file into a variable
+OPENAI_KEY = f.read()
+
+model = ChatOpenAI(openai_api_key=OPENAI_KEY)
+```
 
 ## 5. Set up your kubernetes enviroment
 You can deploy your cluster on any cloud provider, or you can visit cloud.intel.com to set up your environment on the latest Intel Xeon or Gaudi generations. Follow this guide to connect to your environment :  https://console.cloud.intel.com/docs/guides/k8s_guide.html.
