@@ -1,0 +1,313 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-service-account
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: frontend-service-reader
+rules:
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]  # Adjust as needed based on required permissions
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: frontend-service-reader-binding
+subjects:
+- kind: ServiceAccount
+  name: frontend-service-account
+  namespace: default
+roleRef:
+  kind: Role
+  name: frontend-service-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama7b-non-optimized
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+      tier: llama7b-non-optimized
+  template:
+    metadata:
+      labels:
+        app: chat
+        tier: llama7b-non-optimized
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - intensive_node 
+      containers:
+        - name: llama7b-non-optimized
+          image:  "$(llama_non_image):$(llama_non_tag)"
+          ports:
+            - name: app-port
+              containerPort: 5005
+          volumeMounts:
+            - name: efs-volume-1
+              mountPath: /efs_mounted
+      imagePullSecrets:
+        - name: ecr-secret
+      volumes:
+        - name: efs-volume-1
+          persistentVolumeClaim:
+            claimName: efs-claim100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama7b-non-optimized-service
+  labels:
+    app.kubernetes.io/name: llama7b-non-optimized-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat
+    tier: llama7b-non-optimized
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: chat
+        tier: frontend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - light_node 
+      containers:
+      - name: react-frontend
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/front_end:1.5
+        ports:
+            - name: app-port
+              containerPort: 3000
+      imagePullSecrets:
+        - name: ecr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  labels:
+    app.kubernetes.io/name: frontend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat
+    tier: frontend
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llms-front-end
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+      tier: llms-front-end
+  template:
+    metadata:
+      labels:
+        app: chat
+        tier: llms-front-end
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+                # THIS HAS TO BE CHANGED IN ORDER TO SET WITH YOUR NODE
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - light_node
+      containers:
+      - name: llms-front-end
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llms_front_end:1.8
+        ports:
+            - name: app-port
+              containerPort: 5000
+      imagePullSecrets:
+        - name: ecr-secret
+      serviceAccountName: frontend-service-account
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llms-front-end-service
+  labels:
+    app.kubernetes.io/name: llms-front-end-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat
+    tier: llms-front-end
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP
+  
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+      tier: openai
+  template:
+    metadata:
+      labels:
+        app: chat
+        tier: openai
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - light_node
+      containers:
+      - name: openai
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/openai:1.5
+        ports:
+            - name: app-port
+              containerPort: 4000
+        volumeMounts:
+            - name: efs-volume-1
+              mountPath: /efs_mounted
+      imagePullSecrets:
+        - name: ecr-secret
+      volumes:
+        - name: efs-volume-1
+          persistentVolumeClaim:
+            claimName: efs-claim100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openai-service
+  labels:
+    app.kubernetes.io/name: openai-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat
+    tier: openai
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama7b-optimized
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+      tier: llama7b-optimized
+  template:
+    metadata:
+      labels:
+        app: chat
+        tier: llama7b-optimized
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                - intensive_node 
+      containers:
+      - name: llama7b-optimized
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_optim:1.2
+        ports:
+            - name: app-port
+              containerPort: 8000
+        volumeMounts:
+            - name: efs-volume-1
+              mountPath: /efs_mounted
+      imagePullSecrets:
+        - name: ecr-secret
+      volumes:
+        - name: efs-volume-1
+          persistentVolumeClaim:
+            claimName: efs-claim100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama7b-optimized-service
+  labels:
+    app.kubernetes.io/name: llama7b-optimized-service
+spec:
+  type: ClusterIP
+  selector:
+    app: chat
+    tier: llama7b-optimized
+  ports:
+    - name: svc-port
+      port: 80
+      targetPort: app-port
+      protocol: TCP

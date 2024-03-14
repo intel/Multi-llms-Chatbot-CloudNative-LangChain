@@ -1,0 +1,11 @@
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-config
+data:
+  llama_non_image: "902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_non_opt"
+  llama_non_tag: "1.0"
+
+#kubectl apply -f config.yaml -f deployment.yaml
+

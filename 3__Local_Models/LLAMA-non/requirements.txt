@@ -1,0 +1,9 @@
+transformers
+langchain_community
+sentencepiece
+langserve
+langchain
+fastapi
+pydantic==1.10.13
+uvicorn
+sse_starlette

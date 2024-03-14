@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    #nginx.ingress.kubernetes.io/rewrite-target: /$2
+    #nginx.org/proxy-connect-timeout: "175s" # Connection timeout
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api_local_llama_optim
+        pathType: Prefix
+        backend:
+          service:
+            name: llms-front-end-service
+            port:
+              name: svc-port
+      - path: /api_openai
+        pathType: Prefix
+        backend:
+          service:
+            name: llms-front-end-service
+            port:
+              name: svc-port
+      - path: /api_local_llama_non
+        pathType: Prefix
+        backend:
+          service:
+            name: llms-front-end-service
+            port:
+              name: svc-port
+      
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              name: svc-port
