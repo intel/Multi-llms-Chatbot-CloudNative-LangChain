@@ -52,7 +52,7 @@ cd 1__Front_End
 
 Create Python Front_end_LLM container
 ```bash
-cd 2__Models_FE
+cd 2__LLMs_Proxy
     docker build --platform linux/amd64 -t llms_proxy:latest .
 ```
 
@@ -60,7 +60,7 @@ Create Python LLM container for each model (In this example for LlaMa7B non opti
 *Note : Repeat this step to all the containers you'd like to create*
 
 ```bash
-cd 3__Local_Models/LLAMA-NON 
+cd 3__Local_Models/LLAMA-non 
     docker build --platform linux/amd64 -t llama7b-non-optimized:latest .
 ```
 You should now be able to see both containers on your environment.
