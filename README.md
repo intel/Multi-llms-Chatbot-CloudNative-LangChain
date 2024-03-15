@@ -136,7 +136,7 @@ The configuration files for the cluster are the following:
         ```
         containers:
         - name: llama7b-non-optimized
-          image: <<REPLACE IT FOR YOUR>>:1.0
+          image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ```
         - **Worker assigment**: This demonstration utilizes two distinct worker groups, namely "light" and "intensive". Each deployment is associated with a nodeAffinity that corresponds to the anticipated load requirements. In this demo setup, it's configured to utilize EKS node groups for managing the worker nodes. In this case node groups were created using EKS console.
 
