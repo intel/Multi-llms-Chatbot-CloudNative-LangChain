@@ -7,8 +7,8 @@ COPY requirements.txt ./
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt &&\
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    pip install -r requirements.txt
+    #pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 COPY ./app ./app
 

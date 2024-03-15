@@ -54,13 +54,13 @@ spec:
                 - intensive_node 
       containers:
         - name: llama7b-non-optimized
-          image:  "902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_non_opt:1.0"
+          image:  "902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_non_opt:latest"
           ports:
             - name: app-port
               containerPort: 5005
           volumeMounts:
             - name: efs-volume-1
-              mountPath: /efs_mounted
+              mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
@@ -113,7 +113,7 @@ spec:
                 - light_node 
       containers:
       - name: react-frontend
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/front_end:1.5
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/front_end:latest
         ports:
             - name: app-port
               containerPort: 3000
@@ -141,18 +141,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: llms-front-end
+  name: llms-proxy
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: chat
-      tier: llms-front-end
+      tier: llms-proxy
   template:
     metadata:
       labels:
         app: chat
-        tier: llms-front-end
+        tier: llms-proxy
     spec:
       affinity:
         nodeAffinity:
@@ -165,8 +165,8 @@ spec:
                 values:
                 - light_node
       containers:
-      - name: llms-front-end
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llms_front_end:1.8
+      - name: llms-proxy
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llms_proxy:latest
         ports:
             - name: app-port
               containerPort: 5000
@@ -177,14 +177,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: llms-front-end-service
+  name: llms-proxy-service
   labels:
-    app.kubernetes.io/name: llms-front-end-service
+    app.kubernetes.io/name: llms-proxy-service
 spec:
   type: ClusterIP
   selector:
     app: chat
-    tier: llms-front-end
+    tier: llms-proxy
   ports:
     - name: svc-port
       port: 80
@@ -220,13 +220,13 @@ spec:
                 - light_node
       containers:
       - name: openai
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/openai:1.5
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/openai:latest
         ports:
             - name: app-port
               containerPort: 4000
         volumeMounts:
             - name: efs-volume-1
-              mountPath: /efs_mounted
+              mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
@@ -280,13 +280,13 @@ spec:
                 - intensive_node 
       containers:
       - name: llama7b-optimized
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_optim:1.2
+        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_optim:latest
         ports:
             - name: app-port
               containerPort: 8000
         volumeMounts:
             - name: efs-volume-1
-              mountPath: /efs_mounted
+              mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:

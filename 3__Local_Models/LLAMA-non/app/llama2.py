@@ -1,7 +1,7 @@
 from transformers import pipeline,LlamaForCausalLM, LlamaTokenizer
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 
-model_path="/efs_mounted/Models/llama-2-7b-chat-hf"
+model_path="/fs_mounted/Models/llama-2-7b-chat-hf"
 local_model =  LlamaForCausalLM.from_pretrained(model_path, return_dict=True, trust_remote_code=True)
 local_tokenizer = LlamaTokenizer.from_pretrained(model_path)
 

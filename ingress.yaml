@@ -14,21 +14,21 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: llms-front-end-service
+            name: llms-proxy-service
             port:
               name: svc-port
       - path: /api_openai
         pathType: Prefix
         backend:
           service:
-            name: llms-front-end-service
+            name: llms-proxy-service
             port:
               name: svc-port
       - path: /api_local_llama_non
         pathType: Prefix
         backend:
           service:
-            name: llms-front-end-service
+            name: llms-proxy-service
             port:
               name: svc-port
       

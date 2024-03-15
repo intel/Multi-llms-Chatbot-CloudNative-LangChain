@@ -54,7 +54,7 @@ class ActionProvider {
       const chatbotMessage = this.createChatBotMessage(result);
       this.addMessageToState(chatbotMessage);
     } catch (error) {
-      console.error('Error in chatToPython:', error.message);
+      console.error('Error in chatToExternal:', error.message);
     }
   };
   chatToLlamaOptLocal = async (message) => {
@@ -83,7 +83,7 @@ class ActionProvider {
       const chatbotMessage = this.createChatBotMessage(result);
       this.addMessageToState(chatbotMessage);
     } catch (error) {
-      console.error('Error in chatToPython:', error.message);
+      console.error('Error in chatToLlamaOptLocal:', error.message);
     }
   };
   
@@ -113,7 +113,7 @@ class ActionProvider {
       const chatbotMessage = this.createChatBotMessage(result);
       this.addMessageToState(chatbotMessage);
     } catch (error) {
-      console.error('Error in chatToPython:', error.message);
+      console.error('Error in chatToLocal:', error.message);
     }
   };
 

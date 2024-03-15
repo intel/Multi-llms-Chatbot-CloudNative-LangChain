@@ -1,8 +1,8 @@
 # Deploying LLMs in CloudNative using LangChain
 
-Welcome to the repository dedicated to deploying a QA chatbot in Kubernetes utilizing open-source tools.
+Welcome to the repository dedicated to deploying a QA chatbot in Kubernetes utilizing open source tools.
 
-This repository aims to provide a comprehensive, step-by-step guide for implementing a chatbot on Kubernetes using open-source tools. This document will walk you through each stage, from container creation to launching a Kubernetes server.
+This repository aims to provide a comprehensive, STEP-BY-STEP guide for implementing a chatbot on Kubernetes using open source tools. This document will walk you through each stage, from container creation to launching a Kubernetes server.
 
 As we are employing local models, our practical setup will rely on AWS File Server (EFS) and Container Registry (ECR). However, you can substitute these with your preferred file server and Kubernetes cluster provider.
 
@@ -53,7 +53,7 @@ cd 1__Front_End
 Create Python Front_end_LLM container
 ```bash
 cd 2__Models_FE
-    docker build --platform linux/amd64 -t llms_front_end:latest .
+    docker build --platform linux/amd64 -t llms_proxy:latest .
 ```
 
 Create Python LLM container for each model (In this example for LlaMa7B non optimized).
@@ -96,7 +96,7 @@ For this example we will be using 3 different types of models. Follow "How to do
 model_path="/efs_mounted/Models/llama-2-7b-chat-hf"    # Modify it accordly to your file server mount path defined on the deployment.yaml file.
 ```
 - **OPTIMIZED : LlaMa2-7b-chat-hf Model** : Follow the Apendix section "How was the optimization done?" to perform the optimization. 
-- **OpenAI API-GPT3.5/4** : This particular model is intended for use with the LangChain (ChatOpenAi) API. To utilize it, ensure your OpenAI_key is configured within the container for the External model. In this scenario, the key is linked to the EFS server where it is stored.
+- **OpenAI API-GPT3.5/4** : This particular model is intended for use with the LangChain (ChatOpenAi) API. To utilize it, ensure your OpenAI_key is configured within the container for the External model. In the example, the key is linked to the EFS server where it is stored.
 ```python
 #Open AI key stored on a File server
 f = open('/efs_mounted/Models/openai_key.txt')
@@ -113,25 +113,30 @@ The configuration files for the cluster are the following:
 ###    - **Configuration files (yaml)**: 
    - **deployment.yaml**: This yaml file contains the configuration to perform deployments, and creates the services to each of them and set environments to be used:
         - **ServiceAccount**: The ServiceAccount and roles are created specifically to capture the IP address assigned to each BackEnd LLM service. This information is necessary for the LLM back_end to effectively forward incoming requests. This setup is exclusively utilized by the llm_front_end to facilitate the forwarding process for each request.
-        - **VolumeMounts & Persistent Volume/Claim**:**: As mentioned earlier, every local LLM will be saved on a file server for access when pods containing local models are initiated. VolumeMounts are employed to connect the file server to the pod, specifying its internal address and "volumes" to specify the clain (pvc)to be used(created in efs_storage.yaml). Please modify the configuration to align with your file server setup.
+        - **VolumeMounts & Persistent Volume/Claim**:**: As mentioned earlier, every local LLM will be saved on a file server for access when pods containing local models are initiated. VolumeMounts are employed to connect the file server to the pod, specifying its internal address and "volumes" to specify the clain (pvc)to be used(created in efs_storage.yaml). Note that the local containers will be refencing to "/fs_mounted" for example, when the local model instantiates in "3__Local_Models/LLAMA-non/app/llama2.py", the model is downloaded from the fs mounted.
+        ```
+        model_path="/fs_mounted/Models/llama-2-7b-chat-hf"
+        ```python
+        
+        Please modify the configuration to align with your file server setup.
 
         ```
         containers....
         ....
                 volumeMounts:
-                - name: efs-volume-1
-                mountPath: /efs_mounted
+                - name: fs-volume-1
+                mountPath: /fs_mounted
         volumes:
-        - name: efs-volume-1
+        - name: fs-volume-1
           persistentVolumeClaim:
-            claimName: efs-claim100
+            claimName: fs-claim100
         ```
 
         - **Image Containers**: URL of where containers were pushed.
         ```
         containers:
         - name: llama7b-non-optimized
-          image: <<ADD YOUR CONTAINER REGISTRY URL>>:1.0
+          image: <<REPLACE IT FOR YOUR>>:1.0
         ```
         - **Worker assigment**: This demonstration utilizes two distinct worker groups, namely "light" and "intensive". Each deployment is associated with a nodeAffinity that corresponds to the anticipated load requirements. In this demo setup, it's configured to utilize EKS node groups for managing the worker nodes. In this case node groups were created using EKS console.
 
