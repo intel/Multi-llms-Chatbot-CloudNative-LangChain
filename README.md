@@ -218,7 +218,7 @@ In the root folder /LangChain-in-Kubernetes you will find the configuration for 
 ```bash
 kubectl apply -f ingress.yaml
 ```
-This will enable the NGNIX exposse the external communication. In this case is the communication from external users to the front end and due the Front end runs in a browser so the browser should be able to access to the LLMs_Front_end 
+This configuration will allow NGINX to facilitate external communication. Specifically, it enables external users to interact with the front end. Since the front end operates within a browser environment, this setup ensures that the browser can access the LLMs_Front_end. 
 
 ### 5.3 Deploy pvc/pv
 This configuration depends on which cluster provider yoiu are using, in our case for AWS EKS, we'd need to enable the CSI controller which will enable EFS to be consumed within the cluster. In order to enable it AWS allows it do add it from the web console. https://github.com/container-storage-interface/spec/blob/master/spec.md
