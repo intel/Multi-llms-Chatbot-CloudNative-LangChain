@@ -54,7 +54,7 @@ spec:
                 - intensive_node 
       containers:
         - name: llama7b-non-optimized
-          image:  "$(llama_non_image):$(llama_non_tag)"
+          image:  "902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_non_opt:1.0"
           ports:
             - name: app-port
               containerPort: 5005
