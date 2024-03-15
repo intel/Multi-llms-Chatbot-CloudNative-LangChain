@@ -286,7 +286,7 @@ spec:
               containerPort: 8000
         volumeMounts:
             - name: efs-volume-1
-              mountPath: /efs_mounted
+              mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
