@@ -54,7 +54,7 @@ spec:
                 - intensive_node 
       containers:
         - name: llama7b-non-optimized
-          image:  "902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_non_opt:latest"
+          image:  "<<YOUR CONTAINER REGISTRY URL>>:latest"
           ports:
             - name: app-port
               containerPort: 5005
@@ -113,7 +113,7 @@ spec:
                 - light_node 
       containers:
       - name: react-frontend
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/front_end:latest
+        image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ports:
             - name: app-port
               containerPort: 3000
@@ -166,7 +166,7 @@ spec:
                 - light_node
       containers:
       - name: llms-proxy
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llms_proxy:latest
+        image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ports:
             - name: app-port
               containerPort: 5000
@@ -220,7 +220,7 @@ spec:
                 - light_node
       containers:
       - name: openai
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/openai:latest
+        image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ports:
             - name: app-port
               containerPort: 4000
@@ -280,13 +280,13 @@ spec:
                 - intensive_node 
       containers:
       - name: llama7b-optimized
-        image: 902415107800.dkr.ecr.us-east-1.amazonaws.com/llama7b_hf_optim:latest
+        image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ports:
             - name: app-port
               containerPort: 8000
         volumeMounts:
             - name: efs-volume-1
-              mountPath: /fs_mounted
+              mountPath: /efs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
