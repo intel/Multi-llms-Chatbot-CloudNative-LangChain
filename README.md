@@ -52,7 +52,7 @@ cd 1__Front_End
 
 Create Python Front_end_LLM container
 ```bash
-cd 2__Models_FE
+cd 2__LLMs_Proxy
     docker build --platform linux/amd64 -t llms_proxy:latest .
 ```
 
