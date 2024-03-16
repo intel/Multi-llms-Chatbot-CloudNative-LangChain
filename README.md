@@ -1,10 +1,14 @@
-# Deploying LLMs in CloudNative using LangChain
+# Deploying LLMs in CloudNative using LangChain on Intel Developer Cloud (IKS)
 
 Welcome to the repository dedicated to deploying a QA chatbot in Kubernetes utilizing open source tools.
 
 This repository aims to provide a comprehensive, STEP-BY-STEP guide for implementing a chatbot on Kubernetes using open source tools. This document will walk you through each stage, from container creation to launching a Kubernetes server.
 
-As we are employing local models, our practical setup will rely on AWS File Server (EFS) and Container Registry (ECR). However, you can substitute these with your preferred file server and Kubernetes cluster provider.
+As we are employing local models, our practical setup will rely on multiple parts:
+
+ - Container Registry(Amazon ECR). However, you can substitute these with your preferred container registry provider (Docker)
+ - Cluster(IKS): Our cluster will be using the recently lauched service Intel Kubernetes Service (aka IKS) provided by Intel Developer Cloud 
+ - File Server : We will be deploying a file server within the cluster provided. In your scenario this can be done using any File server provider.
 
 # Description of the architecture
 
@@ -20,8 +24,8 @@ The architecture for this implementation is outlined below:
 
 2. **Models**:
    This implementation relies on three different models:
-   - **Local LLaMa2_7B**: llama-2-7b-chat-hf model downloaded from Hugging Face (https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)  and stored on a file server.
-   - **Local Optimized LLaMa2_7B**: An optimized version of the LLaMa2_7B model created using ITREX (details on optimization in the "How was the optimization done?" section). This optimized model is also stored on a file server (EFS).
+   - **Local LLaMa2_7B**: llama-2-7b-chat-hf model downloaded from Hugging Face (https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)  and stored on the file server.
+   - **Local Optimized LLaMa2_7B**: An optimized version of the LLaMa2_7B model created using ITREX (details on optimization in the "How was the optimization done?" section). This optimized model is also stored on the file server.
    - **External Paid API**: OpenAI's paid API.
 
 # Step by step
@@ -109,6 +113,8 @@ model = ChatOpenAI(openai_api_key=OPENAI_KEY)
 ## 5. Set up your kubernetes enviroment
 You can deploy your cluster on any cloud provider, or you can visit cloud.intel.com to set up your environment on the latest Intel Xeon or Gaudi generations. Follow this guide to connect to your environment :  https://console.cloud.intel.com/docs/guides/k8s_guide.html.
 
+In our case we created the enviorment and nodes following this guide : https://console.cloud.intel.com/docs/guides/get_started.html . There is also explained how to configue your kubectl.
+
 The configuration files for the cluster are the following:
 ###    - **Configuration files (yaml)**: 
    - **deployment.yaml**: This yaml file contains the configuration to perform deployments, and creates the services to each of them and set environments to be used:
@@ -125,12 +131,14 @@ The configuration files for the cluster are the following:
         containers....
         ....
                 volumeMounts:
-                - name: fs-volume-1
-                mountPath: /fs_mounted
-        volumes:
-        - name: fs-volume-1
+            - name: iks-volume-1
+              mountPath: /fs_mounted
+      imagePullSecrets:
+        - name: ecr-secret
+      volumes:
+        - name: iks-volume-1
           persistentVolumeClaim:
-            claimName: fs-claim100
+            claimName: iks-claim50
         ```
 
         - **Image Containers**: URL of where containers were pushed.
@@ -183,13 +191,27 @@ The configuration files for the cluster are the following:
                 name: svc-port
     ```
 - **efs_storage.yaml**: 
-    This configuration file outlines the Persistent Volume (PV) and Persistent Volume Claim (PVC) for the cluster. In this instance, EFS was utilized, but you should modify it according to your File Server setup.
+    This configuration file outlines the Persistent Volume (PV) and Persistent Volume Claim (PVC) for the cluster. In this instance, we will be using the Host IKS provides and we will create a pv on /data path (You should download your models there) , but you should modify it according to your File Server setup.
 
+    ```bash
+    spec:
+  storageClassName: manual
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data"
     ```
+
+
+  *In cas you're using amazon EFS*
+    ```bash
     csi:
     driver: efs.csi.aws.com
     volumeHandle: <<USE YOUR EFS URL/ACCESS POINT> 
     ```
+
 This is how the kubernetes architecture will look like.
 ![Kubernetes cluster](<tmp/K8S cluster.png>)
 

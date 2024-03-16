@@ -59,14 +59,14 @@ spec:
             - name: app-port
               containerPort: 5005
           volumeMounts:
-            - name: efs-volume-1
+            - name: iks-volume-1
               mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
-        - name: efs-volume-1
+        - name: iks-volume-1
           persistentVolumeClaim:
-            claimName: efs-claim100
+            claimName: iks-claim50
 
 ---
 apiVersion: v1
@@ -225,14 +225,14 @@ spec:
             - name: app-port
               containerPort: 4000
         volumeMounts:
-            - name: efs-volume-1
+            - name: iks-volume-1
               mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
-        - name: efs-volume-1
+        - name: iks-volume-1
           persistentVolumeClaim:
-            claimName: efs-claim100
+            claimName: iks-claim50
 
 ---
 apiVersion: v1
@@ -285,14 +285,14 @@ spec:
             - name: app-port
               containerPort: 8000
         volumeMounts:
-            - name: efs-volume-1
+            - name: iks-volume-1
               mountPath: /fs_mounted
       imagePullSecrets:
         - name: ecr-secret
       volumes:
-        - name: efs-volume-1
+        - name: iks-volume-1
           persistentVolumeClaim:
-            claimName: efs-claim100
+            claimName: iks-claim50
 
 ---
 apiVersion: v1
