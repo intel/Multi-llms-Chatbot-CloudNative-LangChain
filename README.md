@@ -147,7 +147,7 @@ The configuration files for the cluster are the following:
         - name: llama7b-non-optimized
           image:  <<YOUR CONTAINER REGISTRY URL>>:latest
         ```
-        - **Worker assigment**: This demonstration utilizes two distinct worker groups, namely "light" and "intensive". Each deployment is associated with a nodeAffinity that corresponds to the anticipated load requirements. In this demo setup, it's configured to utilize EKS node groups for managing the worker nodes. In this case node groups were created using EKS console.
+        - **Worker assigment**: This demonstration utilizes two distinct worker groups (for frontend and backend). Each deployment is associated with a nodeAffinity that corresponds to the anticipated load requirements. In this demo setup, it's configured to utilize IKS node groups for managing the worker nodes. In this case node groups were created using IKS console.
 
         ```
         affinity:
@@ -155,10 +155,10 @@ The configuration files for the cluster are the following:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - intensive_node    # Name of EKS node_group
+                - ng-k75hck2u2i-5d2e2     #IKS NODE NAME
         ```
 
    - **ingress.yaml**: This file configures the ingress rules for the NGNIX controller.
@@ -242,11 +242,14 @@ kubectl apply -f ingress.yaml
 ```
 This configuration will allow NGINX to facilitate external communication. Specifically, it enables external users to interact with the front end. Since the front end operates within a browser environment, this setup ensures that the browser can access the LLMs_Front_end. 
 
-### 5.3 Deploy pvc/pv
-This configuration depends on which cluster provider yoiu are using, in our case for AWS EKS, we'd need to enable the CSI controller which will enable EFS to be consumed within the cluster. In order to enable it AWS allows it do add it from the web console. https://github.com/container-storage-interface/spec/blob/master/spec.md
+### 5.3 Deploy pvc/pv  
+
+Follow pv_pvc to mount your FS.
+
+*FOR AWS_EKS: This configuration depends on which cluster provider yoiu are using, in our case for AWS EKS, we'd need to enable the CSI controller which will enable EFS to be consumed within the cluster. In order to enable it AWS allows it do add it from the web console. https://github.com/container-storage-interface/spec/blob/master/spec.md*
 
 ```bash
-kubectl apply -f efs_storage.yaml
+kubectl apply -f pv_pvc.yaml
 ```
 This will create the pv and pvc in the cluster
 
