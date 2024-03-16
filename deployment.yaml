@@ -48,10 +48,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - intensive_node 
+                - ng-eorplybp44-95969    #Node in IKS
       containers:
         - name: llama7b-non-optimized
           image:  "<<YOUR CONTAINER REGISTRY URL>>:latest"
@@ -107,10 +107,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - light_node 
+                - ng-eorplybp44-95969    #Node in IKS
       containers:
       - name: react-frontend
         image:  <<YOUR CONTAINER REGISTRY URL>>:latest
@@ -159,11 +159,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-                # THIS HAS TO BE CHANGED IN ORDER TO SET WITH YOUR NODE
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - light_node
+                - ng-eorplybp44-95969    #Node in IKS
       containers:
       - name: llms-proxy
         image:  <<YOUR CONTAINER REGISTRY URL>>:latest
@@ -214,10 +213,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - light_node
+                - ng-eorplybp44-95969
       containers:
       - name: openai
         image:  <<YOUR CONTAINER REGISTRY URL>>:latest
@@ -274,10 +273,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
+              - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - intensive_node 
+                - ng-eorplybp44-95969    #Node in IKS
       containers:
       - name: llama7b-optimized
         image:  <<YOUR CONTAINER REGISTRY URL>>:latest
