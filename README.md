@@ -140,7 +140,11 @@ spec:
         type: Utilization
         averageUtilization: 50
         ```
+        *NOTE: FOR VERTICAL SCALING REFER TO https://github.com/kubernetes/autoscaler/blob/master/vertical-pod-autoscaler/README.md#installation*
+
+        ```
         
+        ```
         - **ServiceAccount**: The ServiceAccount and roles are created specifically to capture the IP address assigned to each BackEnd LLM service. This information is necessary for the LLM back_end to effectively forward incoming requests. This setup is exclusively utilized by the llm_front_end to facilitate the forwarding process for each request.
         - **VolumeMounts & Persistent Volume/Claim**:**: As mentioned earlier, every local LLM will be saved on a file server for access when pods containing local models are initiated. VolumeMounts are employed to connect the file server to the pod, specifying its internal address and "volumes" to specify the clain (pvc)to be used(created in efs_storage.yaml). Note that the local containers will be refencing to /fs_mounted for example, when the local model instantiates in 3__Local_Models/LLAMA-non/app/llama2.py, the model is downloaded from the fs mounted.
                         

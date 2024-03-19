@@ -67,7 +67,28 @@ spec:
         - name: iks-volume-1
           persistentVolumeClaim:
             claimName: iks-claim50
-
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-1
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: llama7b-non-optimized
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 100m
+          memory: 50Mi
+        maxAllowed:
+          cpu: 200m  #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 500Mi
+        controlledResources: ["cpu", "memory"]
 ---
 apiVersion: v1
 kind: Service
@@ -136,7 +157,25 @@ spec:
       port: 80
       targetPort: app-port
       protocol: TCP
-
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -189,8 +228,25 @@ spec:
       port: 80
       targetPort: app-port
       protocol: TCP
-  
-
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llms-proxy
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llms-proxy
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -252,6 +308,25 @@ spec:
       protocol: TCP
 
 ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: openai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: openai
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -310,3 +385,26 @@ spec:
       port: 80
       targetPort: app-port
       protocol: TCP
+
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-1
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: llama7b-optimized
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 100m
+          memory: 50Mi
+        maxAllowed:
+          cpu: 200m  #maximum vpa will be allocating this many cpus even if demand is higher.
+          memory: 500Mi
+        controlledResources: ["cpu", "memory"]
