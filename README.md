@@ -119,6 +119,27 @@ The configuration files for the cluster are the following:
 ###    - **Configuration files (yaml)**: 
    - **deployment.yaml**: This yaml file contains the configuration to perform deployments, and creates the services to each of them and set environments to be used:
         - **Horizontal and Vertical POD scaling**: The architecture employs two distinct scaling methodologies. Pods containing local models utilize Vertical Pod Scaling due to the prolonged launch time required for model downloads, rendering Horizontal Scaling impractical. Conversely, services such as Frontend, LLM Proxy, and OpenAI (LLM) can benefit from Horizontal Scaling. Refer to each deployment to verify this configuration.
+        ```
+        ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: openai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: openai
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+        ```
         
         - **ServiceAccount**: The ServiceAccount and roles are created specifically to capture the IP address assigned to each BackEnd LLM service. This information is necessary for the LLM back_end to effectively forward incoming requests. This setup is exclusively utilized by the llm_front_end to facilitate the forwarding process for each request.
         - **VolumeMounts & Persistent Volume/Claim**:**: As mentioned earlier, every local LLM will be saved on a file server for access when pods containing local models are initiated. VolumeMounts are employed to connect the file server to the pod, specifying its internal address and "volumes" to specify the clain (pvc)to be used(created in efs_storage.yaml). Note that the local containers will be refencing to /fs_mounted for example, when the local model instantiates in 3__Local_Models/LLAMA-non/app/llama2.py, the model is downloaded from the fs mounted.
