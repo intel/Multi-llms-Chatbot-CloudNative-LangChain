@@ -9,7 +9,7 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from kubernetes import config
 
-
+# Function to extract IP address of each service (for each model)
 def kubernetes_ipv4_address_for_service(service_name, namespace='default'):
     # Load the incluster configuration
     config.load_incluster_config()
@@ -46,10 +46,13 @@ app.add_middleware(
     allow_headers=["*"],  # Add comma here
     allow_credentials=False,
 )
+
+#Start runners of each model
 openai_llm = RemoteRunnable("http://"+openai_svc+":80/chain_api_openai").with_types(input_type=str)
 llama_chain = RemoteRunnable("http://"+llama_non_svc+":80/chain_llama_non").with_types(input_type=str)
 llama_optim_chain = RemoteRunnable("http://"+llama_optim_svc+":80/chain_llama_optim").with_types(input_type=str)
 
+#Expose API
 @app.post("/api_local_llama_optim")
 async def process_text_data(question: Data,user_agent: str = Header(None)):
     try:
@@ -80,26 +83,12 @@ async def process_text_data(question: Data,user_agent: str = Header(None)):
     
 @app.post("/api_openai")
 async def process_text_data(question: Data,user_agent: str = Header(None)):
-    try:
-        #user_question= str(question.question)
-        
-        #prompt = ChatPromptTemplate.from_messages(
-        #    [
-        #        (
-        #            "system",
-        #           "You are a highly educated person who loves to use big words. "
-        #            + "You are also concise. Never answer in more than three sentences.",
-        #        ),
-        #        ("human", user_question),
-        #    ]       
-        #).format_messages()     
+    try:   
         
         user_question= question.question
 
         result=openai_llm.invoke({"question": user_question})
-                # Pass the extracted question
-        #result=openai_llm.invoke(prompt)
-        
+
         return result.content
     
     except Exception as e:
