@@ -20,7 +20,7 @@ The architecture for this implementation is outlined below:
    The front end is built using `react-chatbot-kit`, a versatile and customizable chatbot framework. You can find more information about `react-chatbot-kit` [here](https://www.npmjs.com/package/react-chatbot-kit).
 
 1. **Front End for different models**:
-   Since we will be using multiple LLMs, we would need to create one LLM 'front-end' to centralize all the requests and then send them to where each particular model is instantiated.
+   Since we will be using multiple LLMs, we would need to create one LLM 'front-end' to centralize all the requests and then send them to where each particular model is instantiated. The user has the freedom to choose the model, although there's an option to base the selection on the topic instead of directly allowing user input. This was implemented for demonstration purposes. Another approach involves integrating a text classifier into the LLM Proxy, enabling it to identify the language and automatically route the request to the appropriate model responsible for handling that specific topic.
 
 2. **Models**:
    This implementation relies on three different models:
